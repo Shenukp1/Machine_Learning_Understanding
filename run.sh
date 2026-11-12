@@ -2,6 +2,10 @@
 
 # going to make it to "ml" stage unless "gui" is passed as an argument
 MODE="${1:-ml}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SRC_DIR="$SCRIPT_DIR/src"
+
+mkdir -p "$SRC_DIR"
 
 if [[ "$MODE" == "gui" ]]; then
     IMAGE_NAME="ml-assignment:gui"
@@ -14,16 +18,20 @@ fi
 # Build the specific stage (--target) if the image doesn't exist yet
 if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
     echo "Building $IMAGE_NAME (target: $TARGET)..."
-    docker build --target "$TARGET" -t "$IMAGE_NAME" .
+    docker build --target "$TARGET" -t "$IMAGE_NAME" "$SCRIPT_DIR"
 fi
 
 # Run the chosen container
+# We run at user and we make /tmp as HOME s.t. everything
+# is not written to root directory
 if [[ "$MODE" == "gui" ]]; then
     echo "Starting GUI + ML environment..."
     docker run -it --rm \
+        --user "$(id -u):$(id -g)" \
+        -e HOME=/tmp \
         --gpus all \
         --ipc=host \
-        -v "$(pwd):/workspace" \
+        -v "$SRC_DIR:/workspace" \
         -v /tmp/.X11-unix:/tmp/.X11-unix \
         -v /mnt/wslg:/mnt/wslg \
         -e DISPLAY="$DISPLAY" \
@@ -34,9 +42,11 @@ if [[ "$MODE" == "gui" ]]; then
 else
     echo "Starting clean ML environment (Jupyter port 8888 enabled)..."
     docker run -it --rm \
+        --user "$(id -u):$(id -g)" \
+        -e HOME=/tmp \
         --gpus all \
         --ipc=host \
         -p 8888:8888 \
-        -v "$(pwd):/workspace" \
+        -v "$SRC_DIR:/workspace" \
         "$IMAGE_NAME"
 fi
