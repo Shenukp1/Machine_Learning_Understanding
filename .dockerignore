@@ -1,0 +1,18 @@
+# Docker/build tooling — not needed inside the image
+Dockerfile
+.dockerignore
+run.sh
+
+# Docs
+README.md
+
+# Version control
+.git
+.gitignore
+
+# Python / Jupyter clutter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
