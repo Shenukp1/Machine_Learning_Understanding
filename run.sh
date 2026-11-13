@@ -17,6 +17,7 @@ fi
 
 # Build if the image doesn't exist yet, otherwise ask if the user wants to rebuild
 # TODO(shenukp1) Nov 11, 2026: maybe it is the case we actually force rebuild every time for reproducibility
+# also, we probably want to remove the original docker image when we do rebuild it too.
 if [[ "$(docker images -q "$IMAGE_NAME" 2> /dev/null)" == "" ]]; then
     echo "Building $IMAGE_NAME (target: $TARGET)..."
     docker build --target "$TARGET" -t "$IMAGE_NAME" "$SCRIPT_DIR"
