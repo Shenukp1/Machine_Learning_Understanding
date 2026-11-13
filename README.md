@@ -23,6 +23,13 @@ ML & Jupyter work:
 ./run.sh
 ```
 
+To start Jupyter inside the container:
+
+```bash
+jupyter notebook --ip=0.0.0.0 --no-browser
+```
+_IMPORTANT: Then copy an paste one of the URL given into your browser._
+
 GUI scripts (`grabimage.py`, `interactive.py`):
 
 ```bash

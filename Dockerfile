@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
     seaborn \
     pillow
 
+# Create a non-root user with UID 1000 and a real home directory
+RUN useradd -m -u 1000 -s /bin/bash mluser
+
 WORKDIR /workspace
 CMD ["bash"]
 

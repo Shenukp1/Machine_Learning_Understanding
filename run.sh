@@ -15,10 +15,17 @@ else
     TARGET="ml"
 fi
 
-# Build the specific stage (--target) if the image doesn't exist yet
-if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
+# Build if the image doesn't exist yet, otherwise ask if the user wants to rebuild
+# TODO(shenukp1) Nov 11, 2026: maybe it is the case we actually force rebuild every time for reproducibility
+if [[ "$(docker images -q "$IMAGE_NAME" 2> /dev/null)" == "" ]]; then
     echo "Building $IMAGE_NAME (target: $TARGET)..."
     docker build --target "$TARGET" -t "$IMAGE_NAME" "$SCRIPT_DIR"
+else
+    read -rp "Image $IMAGE_NAME already exists. Rebuild? [y/N] " REBUILD
+    if [[ "$REBUILD" =~ ^[Yy]$ ]]; then
+        echo "Rebuilding $IMAGE_NAME (target: $TARGET)..."
+        docker build --target "$TARGET" -t "$IMAGE_NAME" "$SCRIPT_DIR"
+    fi
 fi
 
 # Run the chosen container
@@ -28,7 +35,6 @@ if [[ "$MODE" == "gui" ]]; then
     echo "Starting GUI + ML environment..."
     docker run -it --rm \
         --user "$(id -u):$(id -g)" \
-        -e HOME=/tmp \
         --gpus all \
         --ipc=host \
         -v "$SRC_DIR:/workspace" \
@@ -43,7 +49,6 @@ else
     echo "Starting clean ML environment (Jupyter port 8888 enabled)..."
     docker run -it --rm \
         --user "$(id -u):$(id -g)" \
-        -e HOME=/tmp \
         --gpus all \
         --ipc=host \
         -p 8888:8888 \
