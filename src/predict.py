@@ -6,31 +6,39 @@ This files is used in the case that interactive.py does not work. It also does
 enforce reproducibility in the sense we have to use grabimage.py to make an image.
 then that image can be used to predict.
 
+IMPORTANT(shenukp1) Nov 13, 2026: The first argument (i.e., MNIST or notMNIST ) determines the classname and data
+that is fetched. In our case, we only care about the notMNIST.
+
+TODO(shenukp1) Nov 13, 2026: Displaying all the images in the image directory, then choosing based on input number
+
 Usage:
      ```bash
-     $ python predict.py <MNIST,notMNIST> <model.keras> <image.png> <prediction class index>
+     $ python predict.py <MNIST,notMNIST>
      ```
 
 Example Usage:
      ```bash
-     $ python predict.py notMNIST notMNIST-Partial.keras image.png 0
+     $ python predict.py notMNIST
      ```
-NOTE(shenukp1) Nov 13, 2026: The name of the image was `image.png` and it was an integer value of `0`, meaning it was classified as the letter A.
+NOTE(shenukp1) Nov 13, 2026: You will be prompted to choose the model, image, and capital letter (A-J), which is mapped to 0-9.
 
 """
 
 
+import os
 import sys
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import pyscreenshot as ImageGrab
+from constant import MODEL_DIR, IMAGE_DIR
 
 def main():
      class_names = check_args()
      print(f"--Load Model {sys.argv[2]}--")
-     #Load the model that should be in sys.argv[2]
-     model = None
+     # Load the model that should be in sys.argv[2]
+     # see<https://www.tensorflow.org/api_docs/python/tf/keras/models/load_model>
+     model = tf.keras.models.load_model(sys.argv[2])
      print(f"--Load Image {sys.argv[3]}--")
      img = plt.imread(sys.argv[3])
      if np.amax(img.flatten()) > 1:
@@ -49,12 +57,84 @@ def predict(model, class_names, img, true_label):
     plot(class_names, prediction, true_label, predicted_label, img[0])
     plt.show()
 
+VALID_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+
+def select_model():
+     """A function to make it easier for us to choose a model.
+     """
+     if not os.path.exists(MODEL_DIR):
+          print(f"Model directory '{MODEL_DIR}' does not exist!")
+          sys.exit(1)
+
+     models = sorted([f for f in os.listdir(MODEL_DIR) if f.endswith(".keras")])
+     if not models:
+          print(f"No .keras models found in '{MODEL_DIR}'!")
+          sys.exit(1)
+
+     print("--Available Models--")
+     for idx, name in enumerate(models, start=1):
+          print(f"{idx}: {name}")
+
+     choice = input("Select a model (number): ").strip()
+     if not choice.isdigit() or not (1 <= int(choice) <= len(models)):
+          print(f"Invalid selection: must be a number between 1 and {len(models)}")
+          sys.exit(1)
+
+     return os.path.join(MODEL_DIR, models[int(choice) - 1])
+
+def select_image():
+     """A function to make it easier for us to choose an image.
+     """
+     if not os.path.exists(IMAGE_DIR):
+          print(f"Image directory '{IMAGE_DIR}' does not exist!")
+          sys.exit(1)
+
+     # Only grab .png files named <A-J>.png
+     images = sorted([
+          f for f in os.listdir(IMAGE_DIR)
+          if f.endswith(".png") and f.split(".")[0] in VALID_LETTERS
+     ])
+     if not images:
+          print(f"No .png images found in '{IMAGE_DIR}'!")
+          sys.exit(1)
+
+     print("--Available Images--")
+     for idx, name in enumerate(images, start=1):
+          print(f"{idx}: {name}")
+
+     choice = input("Select an image (number): ").strip()
+     if not choice.isdigit() or not (1 <= int(choice) <= len(images)):
+          print(f"Invalid selection: must be a number between 1 and {len(images)}")
+          sys.exit(1)
+
+     return os.path.join(IMAGE_DIR, images[int(choice) - 1])
+
+def letter_to_index(image_path):
+     """Parses the [A-J] prefix from the image filename and converts it to 0-9.
+     """
+     filename = os.path.basename(image_path)
+     letter = filename.split(".")[0]
+
+     if letter not in VALID_LETTERS:
+          print(f"Invalid letter '{letter}': must be a capital letter from A to J")
+          sys.exit(1)
+
+     # Convert 'A' -> '0', ..., 'J' -> '9' as a string for sys.argv[4]
+     return str(VALID_LETTERS.index(letter))
+
 def check_args():
-     if(len(sys.argv) == 1):
-         print("No arguments so using defaults")
-         sys.argv = ["predict.py", "MNIST", "MNIST.keras", "image.png", input("Predict the class of image.png(index):")]
+     if(len(sys.argv) == 1): # Seems like by default we look at the MNIST, changed to notMNIST
+         print("No arguments so using defaults to `notMNIST`.")
+         model_path = select_model()
+         img_path = select_image()
+         sys.argv = ["predict.py", "notMNIST", model_path, img_path, letter_to_index(img_path)]
+     elif(len(sys.argv) == 2): # Inserting model, image, and letter index so we do not have to type them in CLI
+         # These will exit if we dont get a model or an image
+         model_path = select_model()
+         img_path = select_image()
+         sys.argv.extend([model_path, img_path, letter_to_index(img_path)])
      if(len(sys.argv) != 5):
-          print("Usage python predict.py <MNIST,notMNIST> <model.keras> <image.png> <prediction class index>")
+          print("Usage python predict.py <MNIST,notMNIST>")
           sys.exit(1)
      if sys.argv[1] == "MNIST":
           print("--Dataset MNIST--")
@@ -67,10 +147,10 @@ def check_args():
           sys.exit(2)
      if sys.argv[2][-6:] != ".keras":
           print(f"{sys.argv[2]} is not a keras extension")
-          sys.exit(3)
+          sys.exit(1)
      if sys.argv[3][-4:] != ".png":
           print(f"{sys.argv[3]} is not a png extension")
-          sys.exit(3)
+          sys.exit(1)
      img = plt.imread(sys.argv[3])
      if len(img.shape) != 2:
           print("Image is not grey scale!")
@@ -80,10 +160,10 @@ def check_args():
           sys.exit(4)
      if not sys.argv[4].isdigit():
           print(f"{sys.argv[4]} is not an integer (0-9)")
-          sys.exit(3)
+          sys.exit(1)
      if int(sys.argv[4]) < 0 or int(sys.argv[4]) > 9 :
           print(f"{sys.argv[4]} is not an integer (0-9)")
-          sys.exit(3)
+          sys.exit(1)
      return class_names
 
 def plot(class_names, prediction, true_label, predicted_label, img):

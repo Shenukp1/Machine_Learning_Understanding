@@ -6,6 +6,7 @@ File contains a way to produce 28x28 images of letter for the model to predict.
 
 import os
 from tkinter import *
+from tkinter import simpledialog, messagebox
 from PIL import Image, ImageDraw
 from constant import IMAGE_DIR
 
@@ -26,12 +27,18 @@ def motion(event):
         r = 8
         canvas_draw.ellipse((event.x - r, event.y - r, event.x + r, event.y + r), fill=0)
 
+VALID_NAMES = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}
+
 def save_image(img):
     """QoL - Allows me to create more images and not overwrite them.
     """
     os.makedirs(IMAGE_DIR, exist_ok=True)
-    count = len([f for f in os.listdir(IMAGE_DIR) if f.endswith(".png")])
-    filepath = os.path.join(IMAGE_DIR, f"image_{count + 1}.png")
+    name = simpledialog.askstring("Save Image", "Enter a capital letter (A-J):")
+    if name not in VALID_NAMES:
+        messagebox.showerror("Invalid Name", "Save failed: Name must be a capital letter from A to J.")
+        return
+    # TODO(shenukp1) Nov 13, 2026: I dont really see a need for multiple so we shall overwrite for now
+    filepath = os.path.join(IMAGE_DIR, f"{name}.png")
     img.resize((28, 28)).save(filepath)
     print(f"Saved {filepath}")
 

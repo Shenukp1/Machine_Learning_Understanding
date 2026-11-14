@@ -7,6 +7,9 @@ CPSC 433 F24
 This file simply allows you to choose an image from the test set of either MNIST or the notMNIST
 and then it plots the confidence.
 
+IMPORTANT(shenukp1) Nov 13, 2026: The first argument (i.e., MNIST or notMNIST ) determines the classname and data
+that is fetched. In our case, we only care about the notMNIST.
+
 How to use this file:
      ```bash
      $ python predict_test.py <MNIST,notMNIST> <model.keras>
@@ -15,7 +18,7 @@ Example of it being used:
      ```bash
      $ python predict_test.py notMNIST notMNIST-Partial.keras
      ```
-WARNING(shenukp1) Nov 13, 2026: Make sure the `notMNIST.npz` and `notMNIST-Partial.keras` are in the same directory.
+WARNING(shenukp1) Nov 13, 2026: Make sure that `notMNIST-Partial.keras` are in the same directory.
 where in my case it is in the `src` directory.
 """
 
@@ -54,13 +57,11 @@ def check_args():
      returns the classnames and data for them.
      """
 
-     if(len(sys.argv) == 1):
+     if(len(sys.argv) == 1): # If we provide one argument, it defaults to the below sys args.
         print("No arguments so using defaults")
         if input("Y for MNIST, otherwise notMNIST:") == "Y":
              sys.argv = ["predict_test.py", "MNIST", "MNIST.keras"]
         else:
-             # NOTE(shenukp1) Nov 13, 2026: I guess it is hardcoded to choose
-             # to say we are running this file(i.e. )
              sys.argv = ["predict_test.py", "notMNIST", "notMNIST.keras"]
      if(len(sys.argv) != 3):
           print("Usage python predict_test.py <MNIST,notMNIST> <model.keras>")
