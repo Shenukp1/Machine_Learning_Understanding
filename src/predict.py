@@ -9,7 +9,6 @@ then that image can be used to predict.
 IMPORTANT(shenukp1) Nov 13, 2026: The first argument (i.e., MNIST or notMNIST ) determines the classname and data
 that is fetched. In our case, we only care about the notMNIST.
 
-TODO(shenukp1) Nov 13, 2026: Displaying all the images in the image directory, then choosing based on input number
 
 Usage:
      ```bash
@@ -49,11 +48,10 @@ def main():
 
 def predict(model, class_names, img, true_label):
     img = np.array([img])
-    # TODO(shenukp1) Nov 13, 2026: Replace these two lines with code to make a prediction
-  
-    prediction = [1/10,1/10,1/10,1/10,1/10,1/10,1/10,1/10,1/10,1/10]
-    # TODO(shenukp1) Nov 13, 2026: Determine what the predicted label is
-    predicted_label = 0
+      
+    prediction = model.predict(img)[0] # it predict in batches so we need to get the first one
+    predicted_label = np.argmax(prediction)
+    print("predicted_label: ",predicted_label)
     plot(class_names, prediction, true_label, predicted_label, img[0])
     plt.show()
 
