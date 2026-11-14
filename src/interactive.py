@@ -1,5 +1,10 @@
-#Original Author: Jonathan Hudson
-#CPSC 433 F24
+
+"""
+Original Author: Jonathan Hudson
+CPSC 433 F24
+
+Probably wont be using this file.
+"""
 
 import sys
 import tensorflow as tf

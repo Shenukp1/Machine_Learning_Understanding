@@ -38,9 +38,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 #   libxext6 \
 #   libsm6 \
 #   libxrender1 \
+# pyscreenshot is needed for garbimage.py
+# scrot is needed for the screenshot that pyscreenshot runs
 RUN apt-get update && apt-get install -y \
     python3-tk \
-    && rm -rf /var/lib/apt/lists/*
+    scrot \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir pyscreenshot
 
 
 WORKDIR /workspace

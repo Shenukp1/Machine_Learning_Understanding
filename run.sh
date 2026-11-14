@@ -34,9 +34,9 @@ fi
 # is not written to root directory
 if [[ "$MODE" == "gui" ]]; then
     echo "Starting GUI + ML environment..."
+    # --gpus all: welp this sucks. I have a 50 series but 3.12 only has cuda support
     docker run -it --rm \
         --user "$(id -u):$(id -g)" \
-        --gpus all \
         --ipc=host \
         -v "$SRC_DIR:/workspace" \
         -v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -48,9 +48,9 @@ if [[ "$MODE" == "gui" ]]; then
         "$IMAGE_NAME"
 else
     echo "Starting clean ML environment (Jupyter port 8888 enabled)..."
+    # --gpus all: welp this sucks. I have a 50 series but 3.12 only has cuda support
     docker run -it --rm \
         --user "$(id -u):$(id -g)" \
-        --gpus all \
         --ipc=host \
         -p 8888:8888 \
         -v "$SRC_DIR:/workspace" \
