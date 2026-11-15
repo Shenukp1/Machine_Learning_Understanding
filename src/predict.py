@@ -30,7 +30,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 import pyscreenshot as ImageGrab
-from constant import MODEL_DIR, IMAGE_DIR
+from constant import MODEL_DIR, IMAGE_DIR, VALID_LETTERS
 
 def main():
      class_names = check_args()
@@ -55,7 +55,6 @@ def predict(model, class_names, img, true_label):
     plot(class_names, prediction, true_label, predicted_label, img[0])
     plt.show()
 
-VALID_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
 def select_model():
      """A function to make it easier for us to choose a model.
@@ -88,6 +87,9 @@ def select_image():
           sys.exit(1)
 
      # Only grab .png files named <A-J>.png
+     # WARNING(shenukp1) Nov 13, 2026: It must be the case that only images produced
+     # by grabimage.py will work because of the format the image is produced. Of course you 
+     # can copy this.
      images = sorted([
           f for f in os.listdir(IMAGE_DIR)
           if f.endswith(".png") and f.split(".")[0] in VALID_LETTERS

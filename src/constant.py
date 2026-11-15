@@ -10,3 +10,5 @@ IMAGE_DIR = "image"
 
 PARTIAL_NAME = "notMNIST-Partial.keras"
 COMPLETE_NAME = "notMNIST-Complete.keras"
+
+VALID_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
