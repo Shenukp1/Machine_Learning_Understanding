@@ -15,3 +15,6 @@ VALID_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
 # Path to the data dir
 DATA_DIR = "data"
+
+# Random state to get reproducibility
+RANDOM_STATE = 42
