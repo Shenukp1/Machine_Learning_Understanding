@@ -12,3 +12,6 @@ PARTIAL_NAME = "notMNIST-Partial.keras"
 COMPLETE_NAME = "notMNIST-Complete.keras"
 
 VALID_LETTERS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+
+# Path to the data dir
+DATA_DIR = "data"
